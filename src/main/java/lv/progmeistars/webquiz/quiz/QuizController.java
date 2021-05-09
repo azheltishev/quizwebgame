@@ -3,6 +3,7 @@ package lv.progmeistars.webquiz.quiz;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lv.progmeistars.webquiz.quiz.model.TranslationForm;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,24 +31,30 @@ public class QuizController {
 
     @GetMapping("/begin")
     public String quizBegin(@RequestParam(name = "username") String username, Map<String, Object> model) throws IOException {
-        String nextWord = quizGameService.loadQuiz(username);
-        model.put("word", nextWord);
+        Pair<Long, String> pair = quizGameService.loadQuiz(username);
+
+        model.put("gameId", pair.getLeft());
+        model.put("word", pair.getRight());
 
         return "quiz";
     }
 
     @PostMapping("/next-word")
     public String quiz(@ModelAttribute TranslationForm translationForm, Map<String, Object> model) {
+        Long gameId = translationForm.getGameId();
         String translation = translationForm.getTranslation();
-        quizGameService.checkWord(translation);
 
-        if (quizGameService.hasNextWord()) {
-            String nextWord = quizGameService.getNextWord();
+        quizGameService.checkWord(gameId, translation);
+
+        if (quizGameService.hasNextWord(gameId)) {
+            String nextWord = quizGameService.getNextWord(gameId);
+
+            model.put("gameId", gameId);
             model.put("word", nextWord);
 
             return "quiz";
         } else {
-            double score = quizGameService.getScore();
+            double score = quizGameService.getScore(gameId);
             model.put("score", score * 100);
 
             return "finalscore";

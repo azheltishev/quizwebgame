@@ -16,6 +16,7 @@
         <div class="form-group">
             <label for="translationInput">Translate</label>
             <input class="form-control" id="translationInput" placeholder="word..." th:name="translation" type="text">
+            <input style="display: none;" class="form-control" id="gameId" th:name="gameId" th:value="${gameId}" type="text">
         </div>
         <br>
         <button class="btn btn-primary" type="submit">Submit</button>
